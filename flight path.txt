@@ -1,0 +1,255 @@
+#include <iostream>
+#include <vector>
+#include <unordered_map>
+#include <queue>
+using namespace std;
+
+// Structure to represent a flight path
+struct Flight {
+    string destination;
+    double cost;
+};
+
+// Graph class
+class FlightGraph {
+    unordered_map<string, vector<Flight>> adjList;
+
+public:
+    // Function to add a flight path
+    void addFlight(const string& source, const string& destination, double cost) {
+        adjList[source].push_back({ destination, cost });
+        adjList[destination].push_back({ source, cost });
+    }
+
+    // Function to check if the graph is connected
+    bool isConnected() {
+        if (adjList.empty())
+            return true;
+
+        // Perform BFS traversal starting from the first city
+        string startCity = adjList.begin()->first;
+        unordered_map<string, bool> visited;
+        queue<string> q;
+
+        visited[startCity] = true;
+        q.push(startCity);
+
+        while (!q.empty()) {
+            string currCity = q.front();
+            q.pop();
+
+            for (const Flight& flight : adjList[currCity]) {
+                if (!visited[flight.destination]) {
+                    visited[flight.destination] = true;
+                    q.push(flight.destination);
+                }
+            }
+        }
+
+        // Check if all cities have been visited
+        for (const auto& city : adjList) {
+            if (!visited[city.first])
+                return false;
+        }
+
+        return true;
+    }
+
+    // Function to perform BFS traversal from a desired city
+    void bfsTraversal(const string& startCity) {
+        if (adjList.empty())
+            return;
+
+        unordered_map<string, bool> visited;
+        queue<string> q;
+
+        visited[startCity] = true;
+        q.push(startCity);
+
+        cout << "BFS Traversal starting from " << startCity << ": ";
+
+        while (!q.empty()) {
+            string currCity = q.front();
+            q.pop();
+
+            cout << currCity << " ";
+
+            for (const Flight& flight : adjList[currCity]) {
+                if (!visited[flight.destination]) {
+                    visited[flight.destination] = true;
+                    q.push(flight.destination);
+                }
+            }
+        }
+
+        cout << endl;
+    }
+
+    // Function to display the adjacency list
+    void displayAdjacencyList() {
+        cout << "Adjacency List:" << endl;
+
+        for (const auto& city : adjList) {
+            cout << city.first << " -> ";
+            for (const Flight& flight : city.second) {
+                cout << "(" << flight.destination << ", " << flight.cost << ") ";
+            }
+            cout << endl;
+        }
+    }
+};
+
+int main() {
+    int numCities, numFlights;
+
+    // Prompt user for number of cities and flights
+    cout << "Enter the number of cities: ";
+    cin >> numCities;
+    cout << "Enter the number of flights: ";
+    cin >> numFlights;
+
+    // Add flight paths
+    FlightGraph graph;
+    string source, destination;
+    double cost;
+
+    for (int i = 0; i < numFlights; i++) {
+        cout << "Enter the source city, destination city, and cost for flight " << i+1 << ":" << endl;
+        cin >> source >> destination >> cost;
+
+        graph.addFlight(source, destination, cost);
+    }
+
+    // Check if the graph is connected
+    bool isConnected = graph.isConnected();
+    cout << "The graph is " << (isConnected ? "connected":"not connected") << endl;
+    // Prompt user for menu choice
+    int choice;
+    cout << endl;
+    do {
+        cout << "Menu:" << endl;
+        cout << "1. Begin Traversal from the desired city" << endl;
+        cout << "2. Display Adjacency List" << endl;
+        cout << "3. Quit" << endl;
+        cout << "Enter your choice: ";
+        cin >> choice;
+
+        // Perform action based on user's choice
+        switch (choice) {
+            case 1: {
+                // Perform BFS traversal from a desired city
+                string startCity;
+                cout << "Enter the starting city for BFS traversal: ";
+                cin >> startCity;
+                cout << endl;
+
+                graph.bfsTraversal(startCity);
+                break;
+            }
+            case 2: {
+                // Display the adjacency list
+                graph.displayAdjacencyList();
+                break;
+            }
+            case 3: {
+                // Quit the program
+                cout << "Exiting..." << endl;
+                break;
+            }
+            default:
+                cout << "Invalid choice." << endl;
+        }
+    } while (choice != 3);
+
+    return 0;
+}
+
+
+OUTPUT:
+
+Enter the number of cities: 6
+Enter the number of flights: 8
+Enter the source city, destination city, and cost for flight 1:
+A
+B
+2
+Enter the source city, destination city, and cost for flight 2:
+B
+C
+2
+Enter the source city, destination city, and cost for flight 3:
+A
+C
+2
+Enter the source city, destination city, and cost for flight 4:
+B
+D
+2
+Enter the source city, destination city, and cost for flight 5:
+C
+E
+2
+Enter the source city, destination city, and cost for flight 6:
+D
+F
+2
+Enter the source city, destination city, and cost for flight 7:
+B
+E
+2
+Enter the source city, destination city, and cost for flight 8:
+E
+F
+2
+The graph is connected
+
+Menu:
+1. Begin Traversal from the desired city
+2. Display Adjacency List
+3. Quit
+Enter your choice: 2
+Adjacency List:
+F -> (D, 2) (E, 2)
+E -> (C, 2) (B, 2) (F, 2)
+D -> (B, 2) (F, 2)
+A -> (B, 2) (C, 2)
+B -> (A, 2) (C, 2) (D, 2) (E, 2)
+C -> (B, 2) (A, 2) (E, 2)
+Menu:
+1. Begin Traversal from the desired city
+2. Display Adjacency List
+3. Quit
+Enter your choice: 1
+Enter the starting city for BFS traversal: A
+
+BFS Traversal starting from A: A B C D E F
+Menu:
+1. Begin Traversal from the desired city
+2. Display Adjacency List
+3. Quit
+Enter your choice: 1
+Enter the starting city for BFS traversal: B
+
+BFS Traversal starting from B: B A C D E F
+Menu:
+1. Begin Traversal from the desired city
+2. Display Adjacency List
+3. Quit
+Enter your choice: 1
+Enter the starting city for BFS traversal: D
+
+BFS Traversal starting from D: D B F A C E
+Menu:
+1. Begin Traversal from the desired city
+2. Display Adjacency List
+3. Quit
+Enter your choice: 1
+Enter the starting city for BFS traversal: E
+
+BFS Traversal starting from E: E C B F A D
+Menu:
+1. Begin Traversal from the desired city
+2. Display Adjacency List
+3. Quit
+Enter your choice: 3
+Exiting...
